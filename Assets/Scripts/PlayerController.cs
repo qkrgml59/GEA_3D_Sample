@@ -91,12 +91,11 @@ public class PlayerController: MonoBehaviour
             speed = 5f;
             virtualCamera.m_Lens.FieldOfView = 60f;
         }
-
-        if (usingFreeLook)
+        if(isGrounded && velocity.y < 0)
         {
-            speed = 0;
-            jumpPower = 0;
+            velocity.y = -2f;
         }
+        
 
             //มกวม
             if (isGrounded && Input.GetKeyDown(KeyCode.Space))

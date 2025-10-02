@@ -2,22 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using UnityEngine.UI;
 using System.Runtime.InteropServices;
 using System.Xml.Schema;
+using System.Runtime.ExceptionServices;
 
 public class PlayerController: MonoBehaviour
 {
+    [Header("플레이어 정보")]
     public float speed = 5f;
-
     public float jumpPower = 5f;
-
     public float gravity = -9.81f;
+    public int maxHP = 100;
 
-    
-    
+    [Header("플레이어 UI")]
+    public Slider hpSlider;
+
+
+    [Header("카메라 정보")]
     public CinemachineVirtualCamera virtualCamera;
-
-
     public float rotationSpeed = 10f;
 
     private CinemachinePOV pov;
@@ -26,9 +29,13 @@ public class PlayerController: MonoBehaviour
 
     private Vector3 velocity;
 
-    public bool isGrounded;
 
+    public bool isGrounded;
     public bool usingFreeLook = false;
+
+  
+
+    private int currentHP;
 
 
 
@@ -40,18 +47,29 @@ public class PlayerController: MonoBehaviour
         //virtual camera 의 POV 컴포넌트 가져오기
         GetComponent<CinemachineSwitcher>();
 
+        currentHP = maxHP;
+        hpSlider.value = 1f;
+
 
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            pov.m_HorizontalAxis.Value = transform.eulerAngles.y;
+            pov.m_VerticalAxis.Value = 0f;
+        }
+
         //땅에 닿아 있는지 확인
         isGrounded = controller.isGrounded;
         if (isGrounded && velocity.y < 0 )
         {
             velocity.y = -2f; //지면에 붙이기
         }
+
+
 
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
@@ -105,5 +123,21 @@ public class PlayerController: MonoBehaviour
         //중력 적용
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+    }
+
+    public void TakeDamage(int damage)
+    {
+        currentHP -= damage;
+        hpSlider.value = (float)currentHP / maxHP;
+
+        if (currentHP <0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Destroy(gameObject);
     }
 }
